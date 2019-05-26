@@ -7,6 +7,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -55,8 +56,8 @@ int main()
 
     //设置Shader
 
-    Shader lightingShader("../Resources/color.vs", "../Resources/color.fs");
-    Shader lampShader("../Resources/lamp.vs", "../Resources/lamp.fs");
+    Shader lightingShader("../../OpenGLtest2/shaders/color.vs", "../../OpenGLtest2/shaders/color.fs");
+    Shader lampShader("../../OpenGLtest2/shaders/lamp.vs", "../../OpenGLtest2/shaders/lamp.fs");
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 

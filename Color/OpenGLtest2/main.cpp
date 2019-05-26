@@ -7,6 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+//local setting
+#include "local_settings.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -56,8 +58,8 @@ int main()
 
     //设置Shader
 
-    Shader lightingShader("../../OpenGLtest2/shaders/color.vs", "../../OpenGLtest2/shaders/color.fs");
-    Shader lampShader("../../OpenGLtest2/shaders/lamp.vs", "../../OpenGLtest2/shaders/lamp.fs");
+    
+    Shader lampShader((shaders_path+"/lamp.vs").data(), (shaders_path+"/lamp.fs").data());
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 

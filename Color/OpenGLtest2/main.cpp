@@ -60,6 +60,8 @@ int main()
 
     
     Shader lampShader((shaders_path+"/lamp.vs").data(), (shaders_path+"/lamp.fs").data());
+    Shader lightingShader((shaders_path+"/color.vs").data(), (shaders_path+"/color.fs").data());
+    
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 

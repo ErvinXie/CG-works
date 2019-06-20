@@ -196,11 +196,16 @@ int main() {
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-//        lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
-        lightingShader.setVec3("light.position", lightPos);
+//        lightingShader.setVec3("light.direction", -0.2f,0.0, -0.3f);
+//        lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("light.position",  camera.Position);
+        lightingShader.setVec3("light.direction", camera.Front);
+        lightingShader.setFloat("light.cutOff",   glm::cos(glm::radians(12.5f)));
+        lightingShader.setFloat("light.outerCutOff",   glm::cos(glm::radians(17.5f)));
+
         lightingShader.setFloat("light.constant",  1.0f);
-        lightingShader.setFloat("light.linear",    0.0014f);
-        lightingShader.setFloat("light.quadratic", 0.000007f);
+        lightingShader.setFloat("light.linear",    0.045f);
+        lightingShader.setFloat("light.quadratic", 0.0075f);
         lightingShader.setVec3("viewPos", camera.Position);
 
         // light properties

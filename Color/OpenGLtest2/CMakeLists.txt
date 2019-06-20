@@ -19,10 +19,10 @@ link_libraries(${OPENGL} ${GLEW_LINK} ${GLFW_LINK})
 
 
 add_executable(OpenGLtest2
-        shaders/color.fs
-        shaders/color.vs
-        shaders/lamp.fs
-        shaders/lamp.vs
+        shaders/color.frag
+        shaders/color.vert
+        shaders/lamp.frag
+        shaders/lamp.vert
         awesomeface.png
         Camera.cpp
         container.jpg

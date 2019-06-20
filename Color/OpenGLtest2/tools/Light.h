@@ -14,9 +14,9 @@ public:
     glm::vec3 diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
     glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
-    virtual std::string getName(int i) {}
+    virtual std::string getName(int i) = 0;
 
-    virtual void setShader(Shader& shader, int i);;
+    virtual void setShader(Shader &shader, int i);;
 };
 
 
@@ -30,7 +30,7 @@ public:
         return "dirLight";
     }
 
-    void setShader(Shader& shader, int i) override;
+    void setShader(Shader &shader, int i) override;
 };
 
 class AttenuateLight : public Light {
@@ -39,7 +39,7 @@ public:
     float linear = 0.045f;
     float quadratic = 0.0075f;
 
-    void setShader(Shader& shader, int i) override;
+    void setShader(Shader &shader, int i) override;
 };
 
 class PointLight : public AttenuateLight {
@@ -52,7 +52,7 @@ public:
         return "pointLights[" + std::to_string(i) + "]";
     }
 
-    void setShader(Shader& shader, int i) override;
+    void setShader(Shader &shader, int i) override;
 
 };
 
@@ -73,7 +73,7 @@ public:
         return "spotLights[" + std::to_string(i) + "]";
     }
 
-    void setShader(Shader& shader, int i) override;
+    void setShader(Shader &shader, int i) override;
 };
 
 #endif

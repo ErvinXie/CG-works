@@ -31,15 +31,16 @@ struct PointLight {
 struct SpotLight{
     vec3 position;
     vec3 direction;
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
 
     float cutOff;
     float outerCutOff;
     float constant;
     float linear;
     float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
 
 uniform DirLight dirLight;
@@ -119,7 +120,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
-    return vec3(0, 0, 0);
+//    return vec3(0,0,0);
     return (ambient + diffuse + specular);
 }
 
@@ -160,7 +161,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
         return (ambient + diffuse + specular);
     }
     else {
-
+//        return vec3(1,0,0);
         return ambient;
     }
 }

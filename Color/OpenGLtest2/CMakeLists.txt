@@ -23,11 +23,11 @@ add_executable(OpenGLtest2
         shaders/color.vert
         shaders/lamp.frag
         shaders/lamp.vert
-        awesomeface.png
-        Camera.cpp
-        container.jpg
+
+        tools/Camera.cpp
+        tools/Shader.cpp
+
         glad.c
         local_settings.h
         main.cpp
-        Shader.cpp
-        stb_image.h)
+        stb_image.h tools/Light.cpp tools/Material.cpp tools/Material.h tools/Shader.h tools/Light.h tools/Camera.h)

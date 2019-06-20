@@ -1,12 +1,9 @@
 #include <iostream>
 #include <cmath>
 
-#include <glad/glad.h>
-#include <glfw3.h>
 
-#define STB_IMAGE_IMPLEMENTATION
 
-#include "stb_image.h"
+//#include <glad/glad.h>
 
 //local setting
 #include "local_settings.h"
@@ -16,12 +13,17 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Shader.cpp"
-#include "Camera.cpp"
+#include "tools/Camera.h"
+#include "tools/Light.h"
+#include "tools/Shader.h"
+#include "tools/Material.h"
 
+
+#include <glad/glad.h>
+#include <glfw3.h>
 void processInput(GLFWwindow *window); //处理输入
 
-unsigned int loadTexture(const char *path);
+
 
 void InitializeGLFW();              //Ervin 初始化工作环境
 GLFWwindow *InitializeGLFWwindow(); //Ervin 初始化窗口
@@ -152,7 +154,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+    // second, configure the Light's VAO (VBO stays the same; the vertices are the same for the Light object which is also a 3D cube)
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
@@ -162,12 +164,8 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
 
-
-    unsigned int diffuseMap = loadTexture((resources_path + "/container2.png").c_str());
-    unsigned int specularMap = loadTexture((resources_path + "/container2_specular.png").c_str());
-
+    Material material = Material((textures_path+"/container2.png").c_str(),(textures_path+"/container2_specular.png").c_str());
 
     //渲染循环
     //-------
@@ -192,67 +190,31 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
+
         lightingShader.use();
         lightingShader.setInt("material.diffuse", 0);
         lightingShader.setInt("material.specular", 1);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap);
-
-        // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.use();
-        lightingShader.setVec3("spotLights[0].position",  camera.Position);
-        lightingShader.setVec3("spotLights[0].direction", camera.Front);
-        lightingShader.setFloat("spotLights[0].cutOff",   glm::cos(glm::radians(7.5f)));
-        lightingShader.setFloat("spotLights[0].outerCutOff",   glm::cos(glm::radians(17.5f)));
-        lightingShader.setFloat("spotLights[0].constant",  1.0f);
-        lightingShader.setFloat("spotLights[0].linear",    0.0f);
-        lightingShader.setFloat("spotLights[0].quadratic", 0.0f);
-        lightingShader.setVec3("spotLights[0].ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("spotLights[0].diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("spotLight[0].specular", 1.0f, 1.0f, 1.0f);
-
-        lightingShader.setVec3("pointLights[0].position",pointLightPositions[0]+deltaPos);
-        lightingShader.setFloat("pointLights[0].constant",  1.0f);
-        lightingShader.setFloat("pointLights[0].linear",    0.045f);
-        lightingShader.setFloat("pointLights[0].quadratic", 0.0075f);
-        lightingShader.setVec3("pointLights[0].ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("pointLights[0].diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-
-        lightingShader.setVec3("pointLights[1].position",pointLightPositions[0]+deltaPos);
-        lightingShader.setFloat("pointLights[1].constant",  1.0f);
-        lightingShader.setFloat("pointLights[1].linear",    0.045f);
-        lightingShader.setFloat("pointLights[1].quadratic", 0.0075f);
-        lightingShader.setVec3("pointLights[1].ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("pointLights[1].diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-
-        lightingShader.setVec3("pointLights[2].position",pointLightPositions[0]+deltaPos);
-        lightingShader.setFloat("pointLights[2].constant",  1.0f);
-        lightingShader.setFloat("pointLights[2].linear",    0.045f);
-        lightingShader.setFloat("pointLights[2].quadratic", 0.0075f);
-        lightingShader.setVec3("pointLights[2].ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("pointLights[2].diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-
-        lightingShader.setVec3("pointLights[3].position",pointLightPositions[0]+deltaPos);
-        lightingShader.setFloat("pointLights[3].constant",  1.0f);
-        lightingShader.setFloat("pointLights[3].linear",    0.045f);
-        lightingShader.setFloat("pointLights[3].quadratic", 0.0075f);
-        lightingShader.setVec3("pointLights[3].ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("pointLights[3].diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-
-
-        lightingShader.setVec3("viewPos", camera.Position);
-        // light properties
-
-
-        // material properties
-        lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
         lightingShader.setFloat("material.shininess", 64.0f);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, material.diffuseMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, material.specularMap);
+
+        //set the lighting
+        Light* light = new SpotLight(camera.Position,camera.Front);
+        light->setShader(lightingShader,0);
+        for(int i=0;i<4;i++){
+            light = new PointLight(pointLightPositions[i]+deltaPos);
+            light->setShader(lightingShader,i);
+        }
+
+        //set the material
+
+
+
+        //set others
+        lightingShader.setVec3("viewPos", camera.Position);
+
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
@@ -282,7 +244,7 @@ int main() {
         lampShader.use();
         lampShader.setMat4("projection", projection);
         lampShader.setMat4("view", view);
-        lampShader.setVec3("lightColor", lightColor);
+        lampShader.setVec3("lightColor", glm::vec3(1,1,1));
 
 
         for(int i=0;i<4;i++) {
@@ -404,37 +366,3 @@ GLFWwindow *InitializeGLFWwindow() {
     return window;
 };
 
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-unsigned int loadTexture(char const *path) {
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data) {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    } else {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
-}

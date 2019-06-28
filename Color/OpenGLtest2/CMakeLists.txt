@@ -25,10 +25,10 @@ add_executable(OpenGLtest2
         shaders/lamp.frag
         shaders/lamp.vert
 
-        tools/Camera.cpp
-        tools/Shader.cpp
+        class/Camera.cpp
+        class/Shader.cpp
 
         glad.c
         local_settings.h
         main.cpp
-        stb_image.h tools/Light.cpp tools/Material.cpp tools/Material.h tools/Shader.h tools/Light.h tools/Camera.h tools/Mesh.cpp tools/Mesh.h tools/Model.cpp tools/Model.h)
+        stb_image.h class/Light.cpp class/Material.cpp class/Material.h class/Shader.h class/Light.h class/Camera.h class/Mesh.cpp class/Mesh.h class/Model.cpp class/Model.h class/Physics/Rigid.cpp class/Physics/Rigid.h class/Physics/Sphere.cpp class/Physics/Sphere.h tools/RandMath.h class/Physics/Hitable.cpp class/Physics/Hitable.h)

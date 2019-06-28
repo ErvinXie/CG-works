@@ -2,9 +2,9 @@
 void Light::setShader(Shader &shader, int i) {
     std::string name = getName(i);
 //        printf("%s\n",name.c_str());
-    shader.setVec3(name + ".ambient", ambient);
-    shader.setVec3(name + ".diffuse", diffuse);
-    shader.setVec3(name + ".specular", specular);
+    shader.setVec3(name + ".ambient", ambient*light_strength);
+    shader.setVec3(name + ".diffuse", diffuse*light_strength);
+    shader.setVec3(name + ".specular", specular*light_strength);
 }
 
 void DirLight::setShader(Shader &shader, int i) {

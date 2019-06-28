@@ -18,8 +18,12 @@ public:
     glm::vec3 Position = glm::vec3(0.0f, 0.0f, 3.0f);
     glm::vec3 Front = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
+    const float max_fov = 45.0f;
+    float near_distance = 0.1f;
+    float far_distance = 1000.0f;
+
     float Fov = 45.0f;
-    float cameraSpeed = 2.5f;
+    float cameraSpeed = 50.0f;
     glm::mat4 View()
     {
         return glm::lookAt(Position, Position + Front, Up);
@@ -52,7 +56,7 @@ public:
     }
     void setFov(float nfov)
     {
-        if (nfov >= 1.0f && nfov <= 45.0f)
+        if (nfov >= 1.0f && nfov <= max_fov)
             Fov = nfov;
     }
     void translate(glm::vec3 tra)

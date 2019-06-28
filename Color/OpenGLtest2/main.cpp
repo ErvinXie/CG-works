@@ -6,22 +6,27 @@
 //#include <glad/glad.h>
 
 //local setting
-#include "local_settings.h"
+#include <local_settings.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "tools/Camera.h"
-#include "tools/Light.h"
-#include "tools/Shader.h"
-#include "tools/Material.h"
-#include "tools/Model.h"
+#include "class/Camera.h"
+#include "class/Light.h"
+#include "class/Shader.h"
+#include "class/Material.h"
+#include "class/Model.h"
+#include "class/Physics/Sphere.h"
 
 
 #include <glad/glad.h>
 #include <glfw3.h>
+#include <tools/RandMath.h>
+
+
+
 void processInput(GLFWwindow *window); //处理输入
 
 
@@ -60,15 +65,22 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+    //set the seed of random number
+    srand((unsigned) time(NULL));
     //设置Shader
 
     Shader lightingShader((shaders_path + "/color.vert").data(), (shaders_path + "/color.frag").data());
 
-    Model ourModel(resources_path+"/nanosuit/nanosuit.obj");
+//    Model ourModel(object_path+"/sphere/sphere.obj");
+//    Model ourModel(object_path + "/scifi tropical city/Sci-fi Tropical city.obj");
 
-    Material material = Material((textures_path+"/container2.png").c_str(),(textures_path+"/container2_specular.png").c_str());
+    const int sn = 20;
+    Sphere s[sn];
 
-
+    for (int i = 0; i < sn; i++) {
+        s[i].position = glm::vec3(RAND(-10,10),RAND(-10,10),RAND(-10,10));
+        s[i].velocity = glm::vec3(RAND(0,1),RAND(0,1),RAND(0,1));
+    }
 
     //渲染循环
     //-------
@@ -81,7 +93,26 @@ int main() {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        glm::vec3 deltaPos = glm::vec3(10 * sin(currentFrame), 1.0, 10 * cos(currentFrame));
+
+        float G = 10.0f;
+        glm::vec3 forces[sn];
+        for (int i = 0; i < sn; i++) {
+            forces[i] = glm::vec3(0, 0, 0);
+            for (int j = 0; j < sn; j++) {
+                if (i != j) {
+                    s[i].hitSphere(s[j]);
+
+                    float distance = glm::length(s[i].position - s[j].position);
+                    if (distance < 0.1)
+                        break;
+                    forces[i] += glm::normalize(s[j].position - s[i].position) *
+                                 (s[i].mass * s[j].mass * G / distance / distance);
+                }
+            }
+        }
+        for (int i = 0; i < sn; i++) {
+            s[i].move(forces[i], deltaTime);
+        }
 
         // input
         // -----
@@ -94,45 +125,33 @@ int main() {
 
         // be sure to activate shader when setting uniforms/drawing objects
         lightingShader.use();
-        lightingShader.setInt("material.diffuse", 0);
-        lightingShader.setInt("material.specular", 1);
-        lightingShader.setFloat("material.shininess", 64.0f);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, material.diffuseMap);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, material.specularMap);
 
         //set the lighting
-        Light* light = new SpotLight(camera.Position,camera.Front);
-        light->setShader(lightingShader,0);
-
-        for(int i=0;i<4;i++){
-            light = new PointLight(deltaPos);
-            light->setShader(lightingShader,i);
+        Light *light = new SpotLight(camera.Position, camera.Front);
+        light->setShader(lightingShader, 0);
+        for (int i = 0; i < sn; i++) {
+            light = new PointLight(s[i].position);
+            light->light_strength = 0.1;
+            light->setShader(lightingShader, i);
         }
 
 
+        for (int i = 0; i < sn; i++) {
+            // view/projection transformations
+            glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), (float) SCR_WIDTH / (float) SCR_HEIGHT,
+                                                    camera.near_distance, camera.far_distance);
+            glm::mat4 view = camera.View();
+            lightingShader.setMat4("projection", projection);
+            lightingShader.setMat4("view", view);
 
+            // render the loaded model
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, s[i].position);
+            model = glm::scale(model, glm::vec3(1, 1, 1) * s[i].radius);
 
-
-
-
-        // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.View();
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
-
-
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-        lightingShader.setMat4("model", model);
-        ourModel.Draw(lightingShader);
-
-
-
+            lightingShader.setMat4("model", model);
+            s[i].Draw(lightingShader);
+        }
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

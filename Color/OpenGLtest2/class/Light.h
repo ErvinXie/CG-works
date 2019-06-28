@@ -10,13 +10,14 @@
 
 class Light {
 public:
+    float light_strength = 1.0f;
     glm::vec3 ambient = glm::vec3(0.2f, 0.2f, 0.2f);
     glm::vec3 diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
     glm::vec3 specular = glm::vec3(1.0f, 1.0f, 1.0f);
 
     virtual std::string getName(int i) = 0;
 
-    virtual void setShader(Shader &shader, int i);;
+    virtual void setShader(Shader &shader, int i);
 };
 
 

@@ -2,7 +2,6 @@
 #define MODEL_H
 
 
-
 #include <glad/glad.h>
 
 #include <glm/glm.hpp>
@@ -14,9 +13,8 @@
 #include <assimp/postprocess.h>
 
 #include "Mesh.h"
-
-
-
+#include "Camera.h"
+#include <glm/gtx/vector_angle.hpp>
 
 using namespace std;
 
@@ -36,6 +34,8 @@ public:
 
     virtual // draws the model, and thus all its meshes
     void Draw(Shader shader);
+
+    virtual void Draw(Shader shader, Camera &camera) = 0;
 
 private:
     /*  Functions   */

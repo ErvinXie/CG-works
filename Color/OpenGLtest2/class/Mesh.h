@@ -16,7 +16,7 @@
 using namespace std;
 
 struct Vertex {
-    // position
+    // center
     glm::vec3 Position;
     // normal
     glm::vec3 Normal;

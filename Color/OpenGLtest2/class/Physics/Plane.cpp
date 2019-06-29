@@ -3,7 +3,7 @@
 //
 
 #include "Plane.h"
-#include <glm/gtx/vector_angle.hpp>
+
 Plane::Plane(const glm::vec3 &center,const glm::vec3 &normal) : Model("../objects/ground/ground.obj"),
                                                                  center(center),
                                                                  normal(normal) {

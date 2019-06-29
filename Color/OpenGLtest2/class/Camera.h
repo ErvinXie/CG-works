@@ -13,18 +13,18 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Camera {
+class Camera{
 public:
     bool fixedY = 1;
     glm::vec3 Position = glm::vec3(0.0f, 1.0f, 3.0f);
-    glm::vec3 Front = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 Front = glm::vec3(0.0f, -0.3f,1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
     const float max_fov = 45.0f;
     float near_distance = 0.1f;
     float far_distance = 2000.0f;
 
-    const unsigned int screen_width = 1000;
-    const unsigned int screen_height = 1000;
+    const unsigned int screen_width = 1920;
+    const unsigned int screen_height = 1080;
 
     float Fov = 45.0f;
     float cameraSpeed = 50.0f;

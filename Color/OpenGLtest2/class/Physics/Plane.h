@@ -9,12 +9,12 @@
 #include "class/Camera.h"
 
 class Plane : public Model {
+public:
     glm::vec3 center;
     glm::vec3 normal;
-public:
     Plane(const glm::vec3 &center, const glm::vec3 &normal);
 
-    void Draw(Shader shader, Camera &camera);
+    void Draw(Shader shader, Camera &camera) override;
 };
 
 

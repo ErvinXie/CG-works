@@ -8,19 +8,26 @@
 #include "Rigid.h"
 #include "class/Model.h"
 #include "class/Camera.h"
+#include "Plane.h"
+#include "Box.h"
+
 
 class Sphere :public Rigid,public Model{
 public:
     float radius=1.0f;
-
-    float hit_loss = 0.0f;
-    Sphere(const glm::vec3 &position, float radius,float mass, const string &path);
+    float normal_loss = 0.2f;
+    float tangent_loss = 0.0f;
 
     Sphere();
+    Sphere(const glm::vec3 &center, float radius,float mass, const string &path);
 
     bool hitSphere(Sphere& b);
+    bool hitPlane(Plane& b);
+    bool hitBox(Box& b);
 
-    void Draw(Shader shader,Camera& camera);
+    void velocity_loss(glm::vec3 norm);
+
+    void Draw(Shader shader,Camera& camera) override;
 };
 
 

@@ -17,14 +17,13 @@
 #include "class/Light.h"
 #include "class/Shader.h"
 #include "class/Material.h"
-#include "class/Model.h"
 #include "class/Physics/Sphere.h"
+#include "class/Physics/Plane.h"
 
 
 #include <glad/glad.h>
 #include <glfw3.h>
 #include <tools/RandMath.h>
-
 
 
 void processInput(GLFWwindow *window); //处理输入
@@ -41,9 +40,7 @@ Camera camera;
 //时间差
 float deltaTime = 0.0f; // 当前帧与上一帧的时间差
 float lastFrame = 0.0f; // 上一帧的时间
-// 窗口设置参数
-const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 1000;
+
 
 int main() {
 
@@ -70,16 +67,20 @@ int main() {
     //设置Shader
 
     Shader lightingShader((shaders_path + "/color.vert").data(), (shaders_path + "/color.frag").data());
+    Shader skyGroundShader((shaders_path + "/color.vert").data(), (shaders_path + "/color.frag").data());
 
-//    Model ourModel(object_path+"/sphere/sphere.obj");
-//    Model ourModel(object_path + "/scifi tropical city/Sci-fi Tropical city.obj");
 
-    const int sn = 20;
-    Sphere s[sn];
+    //加载模型
 
-    for (int i = 0; i < sn; i++) {
-        s[i].position = glm::vec3(RAND(-10,10),RAND(-10,10),RAND(-10,10));
-        s[i].velocity = glm::vec3(RAND(0,1),RAND(0,1),RAND(0,1));
+    Plane sky(glm::vec3(0,50,0),glm::vec3(0,-1,0));
+    Plane ground(glm::vec3(0,-50,0),glm::vec3(0,1,0));
+
+    const int sphere_num = 10;
+    Sphere sphere[sphere_num];
+
+    for (int i = 0; i < sphere_num; i++) {
+        sphere[i].position = glm::vec3(RAND(-10, 10), RAND(-10, 10), RAND(-10, 10));
+        sphere[i].velocity = glm::vec3(RAND(0, 1), RAND(0, 1), RAND(0, 1));
     }
 
     //渲染循环
@@ -95,23 +96,22 @@ int main() {
         lastFrame = currentFrame;
 
         float G = 10.0f;
-        glm::vec3 forces[sn];
-        for (int i = 0; i < sn; i++) {
+        glm::vec3 forces[sphere_num];
+        for (int i = 0; i < sphere_num; i++) {
             forces[i] = glm::vec3(0, 0, 0);
-            for (int j = 0; j < sn; j++) {
+            for (int j = 0; j < sphere_num; j++) {
                 if (i != j) {
-                    s[i].hitSphere(s[j]);
-
-                    float distance = glm::length(s[i].position - s[j].position);
+                    sphere[i].hitSphere(sphere[j]);
+                    float distance = glm::length(sphere[i].position - sphere[j].position);
                     if (distance < 0.1)
                         break;
-                    forces[i] += glm::normalize(s[j].position - s[i].position) *
-                                 (s[i].mass * s[j].mass * G / distance / distance);
+                    forces[i] += glm::normalize(sphere[j].position - sphere[i].position) *
+                                 (sphere[i].mass * sphere[j].mass * G / distance / distance);
                 }
             }
         }
-        for (int i = 0; i < sn; i++) {
-            s[i].move(forces[i], deltaTime);
+        for (int i = 0; i < sphere_num; i++) {
+            sphere[i].move(forces[i], deltaTime);
         }
 
         // input
@@ -120,37 +120,41 @@ int main() {
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.use();
 
+        //render the back ground
+
+
+        skyGroundShader.use();
+        PointLight *pointLight = new PointLight(glm::vec3(0, 0, 0));
+        pointLight->quadratic = 0;
+        pointLight->linear = 0.005;
+        pointLight->setShader(skyGroundShader, 0);
+        sky.Draw(skyGroundShader,camera);
+
+        pointLight->setShader(groundShader,0);
+        ground.Draw(skyGroundShader,camera);
+
+
+
+        lightingShader.use();
         //set the lighting
-        Light *light = new SpotLight(camera.Position, camera.Front);
-        light->setShader(lightingShader, 0);
-        for (int i = 0; i < sn; i++) {
-            light = new PointLight(s[i].position);
+        Light *light;
+        light = new SpotLight(camera.Position, camera.Front);
+        light->setShader(lightingShader, -1);
+        for (int i = 0; i < sphere_num; i++) {
+            light = new PointLight(sphere[i].position);
             light->light_strength = 0.1;
             light->setShader(lightingShader, i);
         }
 
 
-        for (int i = 0; i < sn; i++) {
-            // view/projection transformations
-            glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), (float) SCR_WIDTH / (float) SCR_HEIGHT,
-                                                    camera.near_distance, camera.far_distance);
-            glm::mat4 view = camera.View();
-            lightingShader.setMat4("projection", projection);
-            lightingShader.setMat4("view", view);
+        for (int i = 0; i < sphere_num; i++) {
 
-            // render the loaded model
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, s[i].position);
-            model = glm::scale(model, glm::vec3(1, 1, 1) * s[i].radius);
-
-            lightingShader.setMat4("model", model);
-            s[i].Draw(lightingShader);
+            sphere[i].Draw(lightingShader, camera);
         }
 
 
@@ -239,7 +243,7 @@ void InitializeGLFW() {
 //初始化GLFW窗口
 //------------
 GLFWwindow *InitializeGLFWwindow() {
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(camera.screen_width, camera.screen_height, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

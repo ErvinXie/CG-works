@@ -7,7 +7,7 @@
 
 #include "Rigid.h"
 #include "class/Model.h"
-
+#include "class/Camera.h"
 
 class Sphere :public Rigid,public Model{
 public:
@@ -19,6 +19,8 @@ public:
     Sphere();
 
     bool hitSphere(Sphere& b);
+
+    void Draw(Shader shader,Camera& camera);
 };
 
 

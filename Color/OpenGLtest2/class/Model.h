@@ -34,7 +34,7 @@ public:
     // constructor, expects a filepath to a 3D model.
     Model(string const &path, bool gamma = false);
 
-    // draws the model, and thus all its meshes
+    virtual // draws the model, and thus all its meshes
     void Draw(Shader shader);
 
 private:

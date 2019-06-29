@@ -60,6 +60,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     vector<Texture> textures;
 
     // Walk through each of the mesh's vertices
+//    cout<<mesh->mNumVertices<<endl;
+
     for(unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
@@ -69,6 +71,9 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         vector.y = mesh->mVertices[i].y;
         vector.z = mesh->mVertices[i].z;
         vertex.Position = vector;
+
+//        cout<<"pos: "<<vector.x<<" "<<vector.y<<" "<<vector.z<<endl;
+
         // normals
         vector.x = mesh->mNormals[i].x;
         vector.y = mesh->mNormals[i].y;
@@ -77,11 +82,15 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
         // texture coordinates
         if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
+
+
             glm::vec2 vec;
             // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
             // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
             vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
+//            cout<<"tex: ";
+//            cout<<vec.x<<" "<<vec.y<<endl;
             vertex.TexCoords = vec;
         }
         else

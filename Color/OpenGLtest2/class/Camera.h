@@ -7,32 +7,35 @@
 //
 #ifndef CAMERA_CPP
 #define CAMERA_CPP
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Camera
-{
+class Camera {
 public:
-    glm::vec3 Position = glm::vec3(0.0f, 0.0f, 3.0f);
+    bool fixedY = 1;
+    glm::vec3 Position = glm::vec3(0.0f, 1.0f, 3.0f);
     glm::vec3 Front = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
     const float max_fov = 45.0f;
     float near_distance = 0.1f;
-    float far_distance = 1000.0f;
+    float far_distance = 2000.0f;
+
+    const unsigned int screen_width = 1000;
+    const unsigned int screen_height = 1000;
 
     float Fov = 45.0f;
     float cameraSpeed = 50.0f;
-    glm::mat4 View()
-    {
+
+    glm::mat4 View() {
         return glm::lookAt(Position, Position + Front, Up);
     }
-    void rotate(float xoffset, float yoffset)
-    {
+
+    void rotate(float xoffset, float yoffset) {
         float rotateAngel = sqrt(xoffset * xoffset + yoffset * yoffset);
-        if (rotateAngel == 0)
-        {
+        if (rotateAngel == 0) {
             return;
         }
         glm::vec3 cameraRight = glm::cross(Front, Up);
@@ -41,27 +44,29 @@ public:
         rotate(rotationAxis, rotateAngel);
     }
 
-    void rotate(glm::vec3 rotationAxis, float rotateAngel)
-    {
+    void rotate(glm::vec3 rotationAxis, float rotateAngel) {
 
         glm::quat ro = glm::angleAxis(glm::radians(rotateAngel), rotationAxis);
         glm::quat cameraFrontq = glm::quat(0, Front);
         cameraFrontq = glm::inverse(ro) * cameraFrontq * ro;
         glm::vec3 cameraFrontn = glm::vec3(cameraFrontq.x, cameraFrontq.y, cameraFrontq.z);
         Front = cameraFrontn;
-        glm::quat cameraUpq = glm::quat(0, Up);
-        cameraUpq = glm::inverse(ro) * cameraUpq * ro;
-        glm::vec3 cameraUpn = glm::vec3(cameraUpq.x, cameraUpq.y, cameraUpq.z);
-        Up = cameraUpn;
+        if (fixedY == 0) {
+            glm::quat cameraUpq = glm::quat(0, Up);
+            cameraUpq = glm::inverse(ro) * cameraUpq * ro;
+            glm::vec3 cameraUpn = glm::vec3(cameraUpq.x, cameraUpq.y, cameraUpq.z);
+            Up = cameraUpn;
+        }
     }
-    void setFov(float nfov)
-    {
+
+    void setFov(float nfov) {
         if (nfov >= 1.0f && nfov <= max_fov)
             Fov = nfov;
     }
-    void translate(glm::vec3 tra)
-    {
+
+    void translate(glm::vec3 tra) {
         Position += tra;
     }
 };
+
 #endif

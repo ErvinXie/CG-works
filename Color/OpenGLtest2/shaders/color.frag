@@ -71,6 +71,7 @@ uniform vec3 viewPos;
 void main()
 {
     // 属性
+
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
@@ -83,6 +84,9 @@ void main()
     for (int i = 0; i < NR_SPOT_LIGHTS; i++)
     result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
+//    vec3 test = vec3(Normal.x/2+0.5,Normal.y/2+0.5,Normal.z/2+0.5);
+//    vec3 test = vec3(TexCoords.xy*10,0);
+//    FragColor = vec4(test, 1.0);
     FragColor = vec4(result, 1.0);
 }
 
@@ -120,7 +124,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir){
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
-//    return vec3(0,0,0);
     return (ambient + diffuse + specular);
 }
 

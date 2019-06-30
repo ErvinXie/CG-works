@@ -24,13 +24,8 @@ public:
 class DirLight : public Light {
 public:
     glm::vec3 direction;
-
     DirLight(const glm::vec3 &direction) : direction(direction) {}
-
-    std::string getName(int i) override {
-        return "dirLight";
-    }
-
+    std::string getName(int i) override { return "dirLight"; }
     void setShader(Shader &shader, int i) override;
 };
 

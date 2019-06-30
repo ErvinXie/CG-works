@@ -34,11 +34,15 @@ void processInput(GLFWwindow *window, Sphere &player); //处理输入
 void InitializeGLFW();              //Ervin 初始化工作环境
 GLFWwindow *InitializeGLFWwindow(); //Ervin 初始化窗口
 
+
 // 摄像机参数
 Camera camera;
 int pause = 0;
 float pauseTime = 0;
 int reset = 0;
+int gravity = 3;
+float float_time_max = 5;
+float float_time;
 
 
 //时间差
@@ -53,7 +57,6 @@ int main() {
     // glfw 创建窗口
     // ------------
     GLFWwindow *window = InitializeGLFWwindow();
-
     // glad stand for OpenGL Loading Library
     // glad: 加载所有OpenGL函数指针
     // ---------------------------------------
@@ -80,6 +83,8 @@ int main() {
     Sphere player;
     const int box_num = 10;
     Box box[box_num];
+    Box introduction(glm::vec3(0, 15, 40), 10.0f, 10.0f, 10.0f, (object_path + "/introduction/introduction.obj"));
+    introduction.omega = glm::vec3(0, 10, 0);
 
     //initialize
     int score = 0;
@@ -96,17 +101,20 @@ int main() {
     for (int i = 1; i < box_num; i++) {
         box[i] = box[i - 1].getNext(score);
     }
+
+    float_time = float_time_max;
     //initialize end
 
 
-    //引力区
-    const int sphere_num = 0;
+    //引力模拟
+    const int sphere_num = 3;
     Sphere sphere[sphere_num];
     for (int i = 0; i < sphere_num; i++) {
         sphere[i].center = glm::vec3(RAND(-10, 10), RAND(-10, 10), RAND(-10, 10));
         sphere[i].velocity = glm::vec3(RAND(0, 1), RAND(0, 1), RAND(0, 1));
+        sphere[i].resist = 0;
+        sphere[i].normal_loss = 0;
     }
-
 
     //渲染循环
     //-------
@@ -118,7 +126,7 @@ int main() {
         // animation
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
-        if (pause >= 2||pauseTime > 0) {
+        if (pause >= 2 || pauseTime > 0) {
             if (pauseTime > 0) {
                 pauseTime -= deltaTime;
                 if (pauseTime <= 0) {
@@ -143,13 +151,17 @@ int main() {
             for (int i = 1; i < box_num; i++) {
                 box[i] = box[i - 1].getNext(score);
             }
+            float_time = float_time_max;
+
             reset = 2;
             continue;
         }
         //reset
 
-
+        //固定摄像机
         camera.Position = glm::vec3(0, player.radius, 0) + player.center - 15.0f * camera.Front;
+
+        //引力模拟
         float G = 100.0f;
         glm::vec3 forces[sphere_num];
         for (int i = 0; i < sphere_num; i++) {
@@ -172,6 +184,7 @@ int main() {
             sphere[i].hitPlane(ground);
             sphere[i].move(forces[i], deltaTime);
         }
+        //引力模拟
 
 
         //About the player
@@ -191,8 +204,17 @@ int main() {
         if (pauseTime == 0 && player.hitPlane(ground)) {
             pauseTime = 1;
         }
-        player.move(glm::vec3(0, -50, 0), deltaTime);
-
+        if (gravity >= 2) {
+            player.move(glm::vec3(0, -50, 0), deltaTime);
+            float_time += deltaTime;
+            if (float_time > float_time_max)
+                float_time = float_time_max;
+        } else {
+            player.move(glm::vec3(0, 10, 0), deltaTime);
+            float_time -= deltaTime;
+            if (float_time < 0)
+                gravity = 3;
+        }
 
         // input
         // -----
@@ -226,25 +248,13 @@ int main() {
 
         //render the sky and the ground
         sky.Draw(skyGroundShader, camera);
-//        ground.Draw(skyGroundShader, camera);
 
         //Draw the plantes
-//        lightingShader.use();
-//        Light *light;
-//        light = new SpotLight(camera.Position, camera.Front);
-//        light->setShader(lightingShader, -1);
-//        for (int i = 0; i < sphere_num; i++) {
-//            light = new PointLight(sphere[i].center);
-//            light->light_strength = 0.33;
-//            light->setShader(lightingShader, i);
-//        }
-//        for (int i = 0; i < sphere_num; i++) {
-//            sphere[i].Draw(lightingShader, camera);
-//        }
-
+        skyGroundShader.use();
         for (int i = 0; i < sphere_num; i++) {
             sphere[i].Draw(skyGroundShader, camera);
         }
+
         //Draw the boxes
 
         for (int i = 0; i < box_num; i++) {
@@ -252,19 +262,21 @@ int main() {
                 box[i].Draw(skyGroundShader, camera);
         }
         player.Draw(skyGroundShader, camera);
+        introduction.move(deltaTime);
+        introduction.center = glm::vec3(0, 15, 40 + player.center.z);
+        introduction.Draw(skyGroundShader, camera);
 
 
 
         //Draw the target Box
         targetShader.use();
-        pointLight->specular = glm::vec3(sinf(currentFrame) * 0.3 + 0.3, cosf(currentFrame) * 0.3 + 0.3,
-                                         (sinf(currentFrame) + cosf(currentFrame)) / sqrt(2) * 0.3 + 0.3);
+        pointLight->specular = glm::vec3(sinf(currentFrame) * 0.3 + 0.6, cosf(currentFrame) * 0.3 + 0.6,
+                                         (sinf(currentFrame) + cosf(currentFrame)) / sqrt(2) * 0.3 + 0.6);
         pointLight->setShader(targetShader, 0);
         box[target_box].Draw(targetShader, camera);
 
-        pointLight->specular = glm::vec3(1, 1, 1) -
-                               glm::vec3(sinf(currentFrame) * 0.3 + 0.3, cosf(currentFrame) * 0.3 + 0.3,
-                                         (sinf(currentFrame) + cosf(currentFrame)) / sqrt(2) * 0.3 + 0.3);
+        pointLight->specular = glm::vec3((1 - float_time / float_time_max)*0.3+0.3, 0.3 * float_time / float_time_max,
+                                         0.8 * float_time / float_time_max);
         pointLight->setShader(targetShader, 0);
         ground.Draw(targetShader, camera);
 
@@ -288,7 +300,6 @@ float jump_cd = 0;
 void processInput(GLFWwindow *window, Sphere &player) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
 //    float cameraDelta = camera.cameraSpeed * deltaTime; // adjust accordingly
 //    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 //        camera.translate(cameraDelta * camera.Front);
@@ -298,7 +309,6 @@ void processInput(GLFWwindow *window, Sphere &player) {
 //        camera.translate(-glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraDelta);
 //    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 //        camera.translate(glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraDelta);
-
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
         if (pause == 0)pause = 2;
         if (pause == 3)pause = 1;
@@ -312,25 +322,37 @@ void processInput(GLFWwindow *window, Sphere &player) {
     } else {
         if (reset == 2)reset = 0;
     }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        if (gravity == 0)gravity = 2;
+        if (gravity == 3)gravity = 1;
+
+    } else {
+        if (gravity == 1)gravity = 0;
+        if (gravity == 2)gravity = 3;
+    }
 
     float playerDelta = deltaTime * 40;
-    glm::vec3 r = glm::normalize(glm::cross(camera.Front, camera.Up));
+    glm::vec3 right = glm::normalize(glm::cross(camera.Front, camera.Up));
+    glm::vec3 front = -glm::normalize(glm::cross(right, camera.Up));
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        player.velocity += playerDelta * -glm::normalize(glm::cross(r, camera.Up));
+        player.velocity += playerDelta * front;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        player.velocity += playerDelta * glm::normalize(glm::cross(r, camera.Up));
+        player.velocity += playerDelta * -front;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        player.velocity += playerDelta * -r;
+        player.velocity += playerDelta * -right;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        player.velocity += playerDelta * r;
+        player.velocity += playerDelta * right;
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && jump_cd < 0) {
-        player.velocity += glm::vec3(0, 25, 0);
+        if (gravity <= 1) {
+            player.velocity += front * 25.0f;
+        } else {
+            player.velocity += glm::vec3(0, 25, 0);
+        }
         jump_cd = 1;
     }
     jump_cd -= deltaTime;
-//    cout<<"FPS:"<<1.0/deltaTime<<endl;
-
 }
 
 //回调函数

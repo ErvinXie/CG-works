@@ -28,7 +28,7 @@ add_executable(OpenGLtest2
         class/Camera.cpp
         class/Shader.cpp
 
-        glad.c
+        lib/glad.c
         local_settings.h
         main.cpp
-        stb_image.h class/Light.cpp class/Material.cpp class/Material.h class/Shader.h class/Light.h class/Camera.h class/Mesh.cpp class/Mesh.h class/Model.cpp class/Model.h class/Physics/Rigid.cpp class/Physics/Rigid.h class/Physics/Sphere.cpp class/Physics/Sphere.h tools/RandMath.h class/Physics/Hitable.cpp class/Physics/Hitable.h class/Physics/Plane.cpp class/Physics/Plane.h class/Game/GameHolder.cpp class/Game/GameHolder.h class/Physics/Box.cpp class/Physics/Box.h)
+        lib/stb_image.h class/Light.cpp class/Material.cpp class/Material.h class/Shader.h class/Light.h class/Camera.h class/Mesh.cpp class/Mesh.h class/Model.cpp class/Model.h class/Physics/Rigid.cpp class/Physics/Rigid.h class/Physics/Sphere.cpp class/Physics/Sphere.h tools/RandMath.h class/Physics/Hitable.cpp class/Physics/Hitable.h class/Physics/Plane.cpp class/Physics/Plane.h class/Game/GameHolder.cpp class/Game/GameHolder.h class/Physics/Box.cpp class/Physics/Box.h)

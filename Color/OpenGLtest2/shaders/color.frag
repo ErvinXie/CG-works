@@ -1,6 +1,6 @@
 #version 330 core
 out vec4 FragColor;
-
+//材质
 struct Material{
     sampler2D diffuse;
     sampler2D specular;
@@ -14,8 +14,7 @@ struct DirLight{
     vec3 diffuse;
     vec3 specular;
 };
-
-
+//点光源
 struct PointLight {
     vec3 position;
 
@@ -27,7 +26,7 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 };
-
+//投射光
 struct SpotLight{
     vec3 position;
     vec3 direction;
@@ -54,9 +53,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
-
 uniform Material material;
-
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -71,10 +68,8 @@ uniform vec3 viewPos;
 void main()
 {
     // 属性
-
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
-
     // 第一阶段：定向光照
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
     // 第二阶段：点光源
@@ -83,10 +78,7 @@ void main()
     // 第三阶段：聚光
     for (int i = 0; i < NR_SPOT_LIGHTS; i++)
     result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
-
-//    vec3 test = vec3(Normal.x/2+0.5,Normal.y/2+0.5,Normal.z/2+0.5);
-//    vec3 test = vec3(TexCoords.xy*10,0);
-//    FragColor = vec4(test, 1.0);
+    //合并
     FragColor = vec4(result, 1.0);
 }
 

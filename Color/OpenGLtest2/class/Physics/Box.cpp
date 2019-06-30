@@ -23,6 +23,11 @@ Box::Box(const glm::vec3 &center, float a, float b, float c) :
         Rigid(center),
         a(a), b(b),
         c(c) {}
+Box::Box(const glm::vec3 &center, float a, float b, float c,string path) :
+        Model(path.c_str()),
+        Rigid(center),
+        a(a), b(b),
+        c(c) {}
 
 void Box::Draw(Shader shader, Camera &camera) {
     // view/projection transformations
@@ -55,8 +60,8 @@ Box Box::getNext(float difficult) {
     float a = RAND(ut, dt);
     float c = RAND(ut, dt);
 
-    float dx = RAND((this->a + a)*0.6, 10);
-    float dz = RAND((this->c + c)*0.6, 10);
+    float dx = RAND((this->a + a), 10);
+    float dz = RAND((this->c + c), 10);
 
     if (RAND(0, 1) < 0.5) {
         dx = -dx;

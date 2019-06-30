@@ -16,6 +16,7 @@ public:
     Box();
     Box(const glm::vec3 &center);
     Box(const glm::vec3 &center, float a, float b, float c);
+    Box(const glm::vec3 &center, float a, float b, float c,string path);
 
     Box getNext(float difficult);
     void Draw(Shader shader, Camera &camera) override;

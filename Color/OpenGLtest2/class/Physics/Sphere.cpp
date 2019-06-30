@@ -33,17 +33,13 @@ bool Sphere::hitPlane(Plane &b) {
 }
 
 bool Sphere::hitBox(Box &b) {
-
-
     glm::vec3 v = this->center - b.center;
-
     v = glm::transpose(b.roMat)*glm::vec4(v,1);
 
     float sign[3] = {1, 1, 1};
     if (v.x < 0)sign[0] = -1;
     if (v.y < 0)sign[1] = -1;
     if (v.z < 0)sign[2] = -1;
-
     v = glm::abs(v);
     glm::vec3 h(b.a / 2, b.b / 2, b.c / 2);
     glm::vec3 u = v - h;
@@ -60,13 +56,7 @@ bool Sphere::hitBox(Box &b) {
     h.y *= sign[1];
     h.z *= sign[2];
     float sdis = glm::length(u) - radius;
-
     if (sdis <= 0) {
-//        cout<<"u: "<<u.x<<" "<<u.y<<" "<<u.z<<endl;
-//        cout<<"v: "<<v.x<<" "<<v.y<<" "<<v.z<<endl;
-//        cout<<"h: "<<h.x<<" "<<h.y<<" "<<h.z<<endl;
-
-//        this->velocity = glm::vec3(0,0,0);
         if (u == glm::vec3(0, 0, 0)) {
             this->center = b.center + v;
             h = b.roMat*glm::vec4(glm::normalize(h),1);
@@ -117,12 +107,8 @@ void Sphere::velocity_loss(glm::vec3 norm) {
             nv = glm::dot(this->velocity, norm) * norm,
             tv = this->velocity - nv;
 
-//    std::cout<<"omega:"<<omega.x<<" "<<omega.y<<" "<<omega.z<<endl;
-
     this->omega += glm::length(tv)*glm::cross(nv,tv);
-
     this->velocity = (1 - normal_loss) * nv + (1 - tangent_loss) * tv;
-
 }
 
 

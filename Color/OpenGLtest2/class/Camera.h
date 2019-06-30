@@ -15,58 +15,23 @@
 
 class Camera{
 public:
-    bool fixedY = 1;
-    glm::vec3 Position = glm::vec3(0.0f, 1.0f, 3.0f);
-    glm::vec3 Front = glm::vec3(0.0f, -0.3f,1.0f);
-    glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
-    const float max_fov = 45.0f;
-    float near_distance = 0.1f;
-    float far_distance = 2000.0f;
+    bool fixedY = 1;//是否固定Y轴永远朝上
+    glm::vec3 Position = glm::vec3(0.0f, 1.0f, 3.0f);//摄像机位置
+    glm::vec3 Front = glm::vec3(0.0f, -0.3f,1.0f);//摄像机朝向
+    glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);//摄像机顶部向量
+    float Fov = 45.0f;//缩放级别
+    const float max_fov = 45.0f;//最大缩放级别
+    float near_distance = 0.1f;//近裁剪平面
+    float far_distance = 2000.0f;//远裁剪平面
+    const unsigned int screen_width = 1920;//摄像机画面宽度
+    const unsigned int screen_height = 1080;//摄像机画面高度
+    float cameraSpeed = 50.0f;//摄像机移动速度
 
-    const unsigned int screen_width = 1920;
-    const unsigned int screen_height = 1080;
-
-    float Fov = 45.0f;
-    float cameraSpeed = 50.0f;
-
-    glm::mat4 View() {
-        return glm::lookAt(Position, Position + Front, Up);
-    }
-
-    void rotate(float xoffset, float yoffset) {
-        float rotateAngel = sqrt(xoffset * xoffset + yoffset * yoffset);
-        if (rotateAngel == 0) {
-            return;
-        }
-        glm::vec3 cameraRight = glm::cross(Front, Up);
-        glm::vec3 cusorDirection = glm::normalize(xoffset * cameraRight + yoffset * Up);
-        glm::vec3 rotationAxis = glm::normalize(glm::cross(cusorDirection, Front));
-        rotate(rotationAxis, rotateAngel);
-    }
-
-    void rotate(glm::vec3 rotationAxis, float rotateAngel) {
-
-        glm::quat ro = glm::angleAxis(glm::radians(rotateAngel), rotationAxis);
-        glm::quat cameraFrontq = glm::quat(0, Front);
-        cameraFrontq = glm::inverse(ro) * cameraFrontq * ro;
-        glm::vec3 cameraFrontn = glm::vec3(cameraFrontq.x, cameraFrontq.y, cameraFrontq.z);
-        Front = cameraFrontn;
-        if (fixedY == 0) {
-            glm::quat cameraUpq = glm::quat(0, Up);
-            cameraUpq = glm::inverse(ro) * cameraUpq * ro;
-            glm::vec3 cameraUpn = glm::vec3(cameraUpq.x, cameraUpq.y, cameraUpq.z);
-            Up = cameraUpn;
-        }
-    }
-
-    void setFov(float nfov) {
-        if (nfov >= 1.0f && nfov <= max_fov)
-            Fov = nfov;
-    }
-
-    void translate(glm::vec3 tra) {
-        Position += tra;
-    }
+    glm::mat4 View();
+    void rotate(float xoffset, float yoffset);
+    void rotate(glm::vec3 rotationAxis, float rotateAngel);
+    void setFov(float nfov);
+    void translate(glm::vec3 tra);
 };
 
 #endif

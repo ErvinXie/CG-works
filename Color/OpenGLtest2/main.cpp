@@ -275,7 +275,7 @@ int main() {
         pointLight->setShader(targetShader, 0);
         box[target_box].Draw(targetShader, camera);
 
-        pointLight->specular = glm::vec3((1 - float_time / float_time_max)*0.3+0.3, 0.3 * float_time / float_time_max,
+        pointLight->specular = glm::vec3((1 - float_time / float_time_max)*0.7+0.3, 0.8 * float_time / float_time_max,
                                          0.8 * float_time / float_time_max);
         pointLight->setShader(targetShader, 0);
         ground.Draw(targetShader, camera);

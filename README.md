@@ -14,4 +14,6 @@ Here I:
 
 - Generate random cuboid map automatically. 
 
+- Video link: https://www.bilibili.com/video/BV1rg4y18751/
+
   
